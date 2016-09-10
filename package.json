@@ -1,0 +1,19 @@
+{
+  "name": "weeb-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AbsoluteZero273",
+  "license": "MIT",
+  "dependencies": {
+    "app-module-path": "^1.1.0",
+    "discord.js": "^9.1.1",
+    "node-opus": "^0.2.1",
+    "performance-now": "^0.2.0",
+    "ytdl-core": "^0.7.17"
+  }
+}
