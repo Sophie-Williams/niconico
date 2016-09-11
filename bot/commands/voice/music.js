@@ -51,6 +51,7 @@ class Music extends Command {
       case 'stop': return this.stop(msg, voiceConnData);
       case 'volume': return this.volume(msg, voiceConnData, musicName);
       case 'skip': return this.skip(msg, voiceConnData);
+      case 'queue': return this.skip(msg, voiceConnData);
       default: return msg.channel.sendMessage(
                   `Invalid command. Use \`${this.prefix}help music\` for commands`);
     }
@@ -163,6 +164,20 @@ class Music extends Command {
     let vol = number*0.01;
     voiceConnData.dispatcher.setVolume(vol);
     msg.channel.sendMessage(`Volume has been set to ${number}%`);
+  }
+
+  queue(msg, voiceConnData) {
+    let titles = voiceConnData.queue.titles;
+
+    let msgString = `Currently Playing: **${voiceConnData.nowPlaying}**` + '\n';
+
+    let position = 1;
+
+    for (let title of titles) {
+      msgString += `${position++}. **${title}**` + '\n';
+    }
+
+    msg.channel.sendMessage(msgString);
   }
 
 }
