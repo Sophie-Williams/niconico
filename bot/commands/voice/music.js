@@ -51,7 +51,7 @@ class Music extends Command {
       case 'stop': return this.stop(msg, voiceConnData);
       case 'volume': return this.volume(msg, voiceConnData, musicName);
       case 'skip': return this.skip(msg, voiceConnData);
-      case 'queue': return this.skip(msg, voiceConnData);
+      case 'queue': return this.queue(msg, voiceConnData);
       default: return msg.channel.sendMessage(
                   `Invalid command. Use \`${this.prefix}help music\` for commands`);
     }
@@ -68,7 +68,7 @@ class Music extends Command {
 
     voiceConnData.playing = true;
 
-    nextMsg.edit(`**Now Playing: ${voiceConnData.nowPlaying}**`);
+    nextMsg.edit(`Now Playing: **${voiceConnData.nowPlaying}**`);
 
     // Catch stream end
     voiceConnData.dispatcher.on('end', () => {
@@ -76,7 +76,7 @@ class Music extends Command {
       voiceConnData.playing = false;
       if (voiceConnData.queue.urls.length > 0) {
         let musicName = voiceConnData.queue.urls.shift();
-        setTimeout(() => this.execute(msg, voiceConn, voiceConnData, musicName), 1000);
+        setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName), 1000);
       } else {
         console.log('queue ended');
       }
@@ -92,9 +92,8 @@ class Music extends Command {
         ytdl.getInfo(musicName, (err, info) => {
           if (err) return console.error(err);
 
-          voiceConnData.nowPlaying = info.title;
-
           if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
+            voiceConnData.nowPlaying = info.title;
             this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName);
           } else {
             voiceConnData.queue.urls.push(musicName);
@@ -169,7 +168,7 @@ class Music extends Command {
   queue(msg, voiceConnData) {
     let titles = voiceConnData.queue.titles;
 
-    let msgString = `Currently Playing: **${voiceConnData.nowPlaying}**` + '\n';
+    let msgString = `Currently Playing: **${voiceConnData.nowPlaying}**` + '\n\n**Queue:**\n';
 
     let position = 1;
 
