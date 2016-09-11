@@ -20,6 +20,9 @@ class Music extends Command {
     let voiceConns = msg.client.voiceConnections;
     let voiceConn = voiceConns.get(GUILD_ID);
 
+    // Check that bot is in voice channel
+    if (!voiceConn) return txtChannel.sendMessage('I am not in any voice channel');
+
     // Save voice connection data separately for guilds
     if (!this.voiceConnDatas.has(GUILD_ID)) {
       this.voiceConnDatas.set(GUILD_ID, {
@@ -39,9 +42,6 @@ class Music extends Command {
     let musicCommand = splitSuffix[0];
     let musicName = splitSuffix[1];
 
-    // Check that bot is in voice channel
-    if (!voiceConn) return txtChannel.sendMessage('I am not in any voice channel');
-
     switch(musicCommand) {
       case 'play': return this.play(txtChannel, voiceConn, voiceConnData, musicName);
       case 'pause': return this.pause(txtChannel, voiceConnData);
@@ -54,7 +54,7 @@ class Music extends Command {
 
   execute(txtChannel, voiceConn, voiceConnData, musicName) {
     console.log('playing');
-    const stream = ytdl(musicName, {filter: 'audioonly', quality: 'lowest'});
+    const stream = ytdl(musicName, {filter: 'audioonly'});
     voiceConnData.dispatcher = voiceConn.playStream(stream);
     voiceConnData.playing = true;
     txtChannel.sendMessage(`Now Playing: ${musicName}`);
