@@ -8,7 +8,7 @@ class Music extends Command {
 
   constructor(bot) {
     super(bot,
-          'music <play|pause|resume|stop|volume|skip>',
+          'music <play|pause|resume|stop|volume|skip> <YT URL for play>',
           'Music player');
     this.voiceConnDatas = new Map();  // Map of guild id mapping music info
   }
@@ -68,17 +68,29 @@ class Music extends Command {
 
     voiceConnData.playing = true;
 
-    nextMsg.edit(`Now Playing: **${voiceConnData.nowPlaying}**`);
+    if (nextMsg) {
+      nextMsg.edit(`Now Playing: **${voiceConnData.nowPlaying}**`);
+    } else {
+      msg.channel.sendMessage(`Now Playing: **${voiceConnData.nowPlaying}**`);
+    }
 
     // Catch stream end
     voiceConnData.dispatcher.on('end', () => {
-      console.log('Ended');
+      // nextMsg does not change when end is emitted
+      // so manually set it to null to prevent it from getting old nextMsg
+      nextMsg = null;
+
       voiceConnData.playing = false;
+
       if (voiceConnData.queue.urls.length > 0) {
         let musicName = voiceConnData.queue.urls.shift();
+        let musicTitle = voiceConnData.queue.titles.shift();
+
+        voiceConnData.nowPlaying = musicTitle;
+
         setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName), 1000);
       } else {
-        console.log('queue ended');
+        msg.channel.sendMessage('Queue ended');
       }
     });
 
@@ -94,12 +106,15 @@ class Music extends Command {
             console.error(err);
             return nextMsg.edit('**Bad URL**');
           }
+
           if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
             voiceConnData.nowPlaying = info.title;
+
             this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName);
           } else {
             voiceConnData.queue.urls.push(musicName);
             voiceConnData.queue.titles.push(info.title);
+
             nextMsg.edit(`**${info.title}** has been added to the queue.`);
           }
         });
@@ -147,10 +162,11 @@ class Music extends Command {
     // clear queue urls
     voiceConnData.queue.urls = [];
 
+    msg.channel.sendMessage('Music has been stopped');
+
     // Emits end event
     voiceConnData.dispatcher.end();
 
-    msg.channel.sendMessage('Music has been stopped');
   }
 
   volume(msg, voiceConnData, number) {
@@ -174,11 +190,15 @@ class Music extends Command {
 
     let position = 1;
 
-    for (let title of titles) {
-      msgString += `${position++}. **${title}**` + '\n';
-    }
+    msg.channel.sendMessage('Processing...')
+      .then(nextMsg => {
+        for (let title of titles) {
+          msgString += `${position++}. **${title}**` + '\n';
+        }
 
-    msg.channel.sendMessage(msgString);
+        nextMsg.edit(msgString);
+      });
+
   }
 
 }
