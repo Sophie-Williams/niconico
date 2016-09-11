@@ -8,7 +8,7 @@ class Music extends Command {
 
   constructor(bot) {
     super(bot,
-          'music <play|pause|resume|stop>',
+          'music <play|pause|resume|stop|volume|skip>',
           'Music player');
     this.voiceConnDatas = new Map();  // Map of guild id mapping music info
   }
@@ -124,6 +124,9 @@ class Music extends Command {
   }
 
   volume(msg, voiceConnData, number) {
+    if (isNaN(number))
+      return msg.channel.sendMessage('Enter valid number [0-200]')
+
     // Only allow user with bot command role to use this command
     if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
       return msg.channel.sendMessage('You do not have enough permission');
