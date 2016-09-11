@@ -16,6 +16,9 @@ class Join extends Command {
     if (!vChannel)
       return msg.channel.sendMessage('Be in voice channel first');
 
+    if(!vChannel.permissionsFor(msg.client.user).hasPermission('CONNECT'))
+      return msg.channel.sendMessage('I do not have permission to connect');
+
     vChannel.join()
     .then(() => console.log('Connected!'))
     .catch(console.error);
