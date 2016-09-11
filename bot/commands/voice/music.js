@@ -31,6 +31,7 @@ class Music extends Command {
           titles: [],
           urls: []
         },
+        nowPlaying: undefined,
         dispatcher: undefined,
         playing: false
       });
@@ -55,13 +56,20 @@ class Music extends Command {
     }
   }
 
-  execute(msg, voiceConn, voiceConnData, musicName) {
+  execute(msg, nextMsg, voiceConn, voiceConnData, musicName) {
     console.log('playing');
-    const stream = ytdl(musicName, {filter: 'audioonly'});
-    voiceConnData.dispatcher = voiceConn.playStream(stream);
-    voiceConnData.playing = true;
-    msg.channel.sendMessage(`Now Playing: ${musicName}`);
 
+    // Readable stream
+    const stream = ytdl(musicName, {filter: 'audioonly'});
+
+    // Plays the stream
+    voiceConnData.dispatcher = voiceConn.playStream(stream);
+
+    voiceConnData.playing = true;
+
+    nextMsg.edit(`**Now Playing: ${voiceConnData.nowPlaying}**`);
+
+    // Catch stream end
     voiceConnData.dispatcher.on('end', () => {
       console.log('Ended');
       voiceConnData.playing = false;
@@ -73,16 +81,29 @@ class Music extends Command {
       }
     });
 
+    // Catch errors
     voiceConnData.dispatcher.on('error', console.error);
   }
 
   play(msg, voiceConn, voiceConnData, musicName) {
-    if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
-      this.execute(msg, voiceConn, voiceConnData, musicName);
-    } else {
-      voiceConnData.queue.urls.push(musicName);
-      msg.channel.sendMessage(`${musicName} has been added to the queue.`);
-    }
+    msg.channel.sendMessage('Processing...')
+      .then(nextMsg => {
+        ytdl.getInfo(musicName, (err, info) => {
+          if (err) return console.error(err);
+
+          voiceConnData.nowPlaying = info.title;
+
+          if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
+            this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName);
+          } else {
+            voiceConnData.queue.urls.push(musicName);
+            voiceConnData.queue.titles.push(info.title);
+            nextMsg.edit(`**${info.title}** has been added to the queue.`);
+          }
+        });
+      });
+    // Get info
+
   }
 
   pause(msg, voiceConnData) {
@@ -90,6 +111,7 @@ class Music extends Command {
     if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
       return msg.channel.sendMessage('You do not have enough permission');
 
+    // Check if the music is being played
     if (!voiceConnData.playing)
       return msg.channel.sendMessage('No music being played');
 
@@ -103,6 +125,7 @@ class Music extends Command {
     if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
       return msg.channel.sendMessage('You do not have enough permission');
 
+    // Check if the music is being played
     if (voiceConnData.playing)
       return msg.channel.sendMessage('Music is already being played');
 
@@ -118,14 +141,20 @@ class Music extends Command {
 
   stop(msg, voiceConnData) {
     voiceConnData.playing = false;
+
+    // clear queue urls
     voiceConnData.queue.urls = [];
+
+    // Emits end event
     voiceConnData.dispatcher.end();
+
     msg.channel.sendMessage('Music has been stopped');
   }
 
   volume(msg, voiceConnData, number) {
+    // Accept only numbers
     if (isNaN(number))
-      return msg.channel.sendMessage('Enter valid number [0-200]')
+      return msg.channel.sendMessage('Enter valid number [0-200]');
 
     // Only allow user with bot command role to use this command
     if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
