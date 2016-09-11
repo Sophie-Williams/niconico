@@ -2,6 +2,7 @@
 
 const Command = require('lib/command.js');
 const ytdl = require('ytdl-core');
+const BOT_COMMAND_ROLE = require('configs/config.json').BOT_COMMAND_ROLE;
 
 class Music extends Command {
 
@@ -43,28 +44,30 @@ class Music extends Command {
     let musicName = splitSuffix[1];
 
     switch(musicCommand) {
-      case 'play': return this.play(txtChannel, voiceConn, voiceConnData, musicName);
-      case 'pause': return this.pause(txtChannel, voiceConnData);
-      case 'resume': return this.resume(txtChannel, voiceConnData);
-      case 'stop': return this.stop(txtChannel, voiceConnData);
-      case 'volume': return this.volume(txtChannel, voiceConnData, musicName);
-      case 'skip': return this.skip(txtChannel, voiceConnData);
+      case 'play': return this.play(msg, voiceConn, voiceConnData, musicName);
+      case 'pause': return this.pause(msg, voiceConnData);
+      case 'resume': return this.resume(msg, voiceConnData);
+      case 'stop': return this.stop(msg, voiceConnData);
+      case 'volume': return this.volume(msg, voiceConnData, musicName);
+      case 'skip': return this.skip(msg, voiceConnData);
+      default: return msg.channel.sendMessage(
+                  `Invalid command. Use \`${this.prefix}help music\` for commands`);
     }
   }
 
-  execute(txtChannel, voiceConn, voiceConnData, musicName) {
+  execute(msg, voiceConn, voiceConnData, musicName) {
     console.log('playing');
     const stream = ytdl(musicName, {filter: 'audioonly'});
     voiceConnData.dispatcher = voiceConn.playStream(stream);
     voiceConnData.playing = true;
-    txtChannel.sendMessage(`Now Playing: ${musicName}`);
+    msg.channel.sendMessage(`Now Playing: ${musicName}`);
 
     voiceConnData.dispatcher.on('end', () => {
       console.log('Ended');
       voiceConnData.playing = false;
       if (voiceConnData.queue.urls.length > 0) {
         let musicName = voiceConnData.queue.urls.shift();
-        setTimeout(() => this.execute(txtChannel, voiceConn, voiceConnData, musicName), 1000);
+        setTimeout(() => this.execute(msg, voiceConn, voiceConnData, musicName), 1000);
       } else {
         console.log('queue ended');
       }
@@ -73,50 +76,61 @@ class Music extends Command {
     voiceConnData.dispatcher.on('error', console.error);
   }
 
-  play(txtChannel, voiceConn, voiceConnData, musicName) {
-
+  play(msg, voiceConn, voiceConnData, musicName) {
     if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
-      this.execute(txtChannel, voiceConn, voiceConnData, musicName);
+      this.execute(msg, voiceConn, voiceConnData, musicName);
     } else {
       voiceConnData.queue.urls.push(musicName);
-      txtChannel.sendMessage(`${musicName} has been added to the queue.`);
+      msg.channel.sendMessage(`${musicName} has been added to the queue.`);
     }
   }
 
-  pause(txtChannel, voiceConnData) {
+  pause(msg, voiceConnData) {
+    // Only allow user with bot command role to use this command
+    if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
+      return msg.channel.sendMessage('You do not have enough permission');
+
     if (!voiceConnData.playing)
-      return txtChannel.sendMessage('No music being played');
+      return msg.channel.sendMessage('No music being played');
 
     voiceConnData.dispatcher.pause();
     voiceConnData.playing = false;
-    txtChannel.sendMessage(`Music has been paused`);
+    msg.channel.sendMessage(`Music has been paused`);
   }
 
-  resume(txtChannel, voiceConnData) {
+  resume(msg, voiceConnData) {
+    // Only allow user with bot command role to use this command
+    if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
+      return msg.channel.sendMessage('You do not have enough permission');
+
     if (voiceConnData.playing)
-      return txtChannel.sendMessage('Music is already being played');
+      return msg.channel.sendMessage('Music is already being played');
 
     voiceConnData.dispatcher.resume();
     voiceConnData.playing = true;
-    txtChannel.sendMessage('Music has been resumed');
+    msg.channel.sendMessage('Music has been resumed');
   }
 
-  skip(txtChannel, voiceConnData) {
+  skip(msg, voiceConnData) {
     voiceConnData.dispatcher.end();
-    txtChannel.sendMessage('Music has been skipped');
+    msg.channel.sendMessage('Music has been skipped');
   }
 
-  stop(txtChannel, voiceConnData) {
+  stop(msg, voiceConnData) {
     voiceConnData.playing = false;
     voiceConnData.queue.urls = [];
     voiceConnData.dispatcher.end();
-    txtChannel.sendMessage('Music has been stopped');
+    msg.channel.sendMessage('Music has been stopped');
   }
 
-  volume(txtChannel, voiceConnData, number) {
+  volume(msg, voiceConnData, number) {
+    // Only allow user with bot command role to use this command
+    if (!msg.member.roles.exists('name', BOT_COMMAND_ROLE))
+      return msg.channel.sendMessage('You do not have enough permission');
+
     let vol = number*0.01;
     voiceConnData.dispatcher.setVolume(vol);
-    txtChannel.sendMessage(`Volume has been set to ${number}%`);
+    msg.channel.sendMessage(`Volume has been set to ${number}%`);
   }
 
 }

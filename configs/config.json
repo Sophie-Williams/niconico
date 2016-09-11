@@ -1,3 +1,4 @@
 {
-  "PREFIX": ">"
+  "PREFIX": "<",
+  "BOT_COMMAND_ROLE": "BotCommand"
 }
