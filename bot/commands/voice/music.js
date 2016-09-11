@@ -90,7 +90,7 @@ class Music extends Command {
     msg.channel.sendMessage('Processing...')
       .then(nextMsg => {
         ytdl.getInfo(musicName, (err, info) => {
-          if (err) return console.error(err);
+          // if (err) return console.error(err);
 
           if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
             voiceConnData.nowPlaying = info.title;
