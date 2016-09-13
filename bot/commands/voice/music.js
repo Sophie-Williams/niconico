@@ -2,7 +2,9 @@
 
 const Command = require('lib/command.js');
 const ytdl = require('ytdl-core');
+const YouTube = require('youtube-node');
 const BOT_COMMAND_ROLE = require('configs/config.json').BOT_COMMAND_ROLE;
+const YOUTUBE_API_KEY = require('configs/auth.json').YOUTUBE_API_KEY;
 
 class Music extends Command {
 
@@ -11,6 +13,8 @@ class Music extends Command {
           'music <play|pause|resume|stop|volume|skip> <YT URL for play>',
           'Music player');
     this.voiceConnDatas = new Map();  // Map of guild id mapping music info
+    this.youTube = new YouTube();
+    this.youTube.setKey(YOUTUBE_API_KEY);
   }
 
   process(msg, suffix) {
@@ -42,14 +46,14 @@ class Music extends Command {
 
     let splitSuffix = suffix.split(' ');
     let musicCommand = splitSuffix[0];
-    let musicName = splitSuffix[1];
+    let musicSuffix = splitSuffix.slice(1).join(' ');
 
     switch(musicCommand) {
-      case 'play': return this.play(msg, voiceConn, voiceConnData, musicName);
+      case 'play': return this.play(msg, voiceConn, voiceConnData, musicSuffix);
       case 'pause': return this.pause(msg, voiceConnData);
       case 'resume': return this.resume(msg, voiceConnData);
       case 'stop': return this.stop(msg, voiceConnData);
-      case 'volume': return this.volume(msg, voiceConnData, musicName);
+      case 'volume': return this.volume(msg, voiceConnData, musicSuffix);
       case 'skip': return this.skip(msg, voiceConnData);
       case 'queue': return this.queue(msg, voiceConnData);
       default: return msg.channel.sendMessage(
@@ -57,11 +61,11 @@ class Music extends Command {
     }
   }
 
-  execute(msg, nextMsg, voiceConn, voiceConnData, musicName) {
+  execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl) {
     console.log('playing');
 
     // Readable stream
-    const stream = ytdl(musicName, {filter: 'audioonly'});
+    const stream = ytdl(musicUrl, {filter: 'audioonly'});
 
     // Plays the stream
     voiceConnData.dispatcher = voiceConn.playStream(stream);
@@ -83,12 +87,12 @@ class Music extends Command {
       voiceConnData.playing = false;
 
       if (voiceConnData.queue.urls.length > 0) {
-        let musicName = voiceConnData.queue.urls.shift();
+        let musicUrl = voiceConnData.queue.urls.shift();
         let musicTitle = voiceConnData.queue.titles.shift();
 
         voiceConnData.nowPlaying = musicTitle;
 
-        setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName), 1000);
+        setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl), 1000);
       } else {
         msg.channel.sendMessage('Queue ended');
       }
@@ -99,28 +103,58 @@ class Music extends Command {
   }
 
   play(msg, voiceConn, voiceConnData, musicName) {
+    let musicUrl = musicName;
+    console.log(musicName);
     msg.channel.sendMessage('Processing...')
       .then(nextMsg => {
-        ytdl.getInfo(musicName, (err, info) => {
-          if (err) {
-            console.error(err);
-            return nextMsg.edit('**Bad URL**');
-          }
 
-          if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
-            voiceConnData.nowPlaying = info.title;
+        if (!musicName.startsWith('http')){
+          console.log(musicName);
+          this.youTube.search(musicName, 1, (err, result) => {
+            if (err) return nextMsg.edit('Error');
 
-            this.execute(msg, nextMsg, voiceConn, voiceConnData, musicName);
-          } else {
-            voiceConnData.queue.urls.push(musicName);
-            voiceConnData.queue.titles.push(info.title);
+            musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
 
-            nextMsg.edit(`**${info.title}** has been added to the queue.`);
-          }
-        });
+            let musicTitle = result.items[0].snippet.title;
+
+            if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
+              voiceConnData.nowPlaying = musicTitle;
+
+              return this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl);
+            } else {
+              voiceConnData.queue.urls.push(musicUrl);
+              voiceConnData.queue.titles.push(musicTitle);
+
+              return nextMsg.edit(`**${musicTitle}** has been added to the queue.`);
+            }
+          });
+
+        } else {
+
+          // Fall back to ytdl to get information if direct video link is given
+          ytdl.getInfo(musicUrl, (err, info) => {
+            if (err) {
+              console.error(err);
+              return nextMsg.edit('**Bad URL**');
+            }
+
+            let musicTitle = info.title;
+
+            if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
+              voiceConnData.nowPlaying = musicTitle;
+
+              return this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl);
+            } else {
+              voiceConnData.queue.urls.push(musicUrl);
+              voiceConnData.queue.titles.push(musicTitle);
+
+              return nextMsg.edit(`**${musicTitle}** has been added to the queue.`);
+            }
+          });
+
+        }
+
       });
-    // Get info
-
   }
 
   pause(msg, voiceConnData) {
@@ -198,7 +232,6 @@ class Music extends Command {
 
         nextMsg.edit(msgString);
       });
-
   }
 
 }
