@@ -37,7 +37,8 @@ class Music extends Command {
         },
         nowPlaying: undefined,
         dispatcher: undefined,
-        playing: false
+        playing: false,
+        volume: 1
       });
     }
 
@@ -63,12 +64,20 @@ class Music extends Command {
 
   execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl) {
     console.log('playing');
+    let stream;
 
     // Readable stream
-    const stream = ytdl(musicUrl, {filter: 'audioonly'});
+    try {
+      stream = ytdl(musicUrl, {filter: 'audioonly'});
+    } catch(e) {
+      return console.error(e);
+    }
 
     // Plays the stream
     voiceConnData.dispatcher = voiceConn.playStream(stream);
+
+    // Set volume
+    voiceConnData.dispatcher.setVolume(voiceConnData.volume);
 
     voiceConnData.playing = true;
 
@@ -94,6 +103,7 @@ class Music extends Command {
 
         setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl), 1000);
       } else {
+        voiceConnData.nowPlaying = null;
         msg.channel.sendMessage('Queue ended');
       }
     });
@@ -109,7 +119,6 @@ class Music extends Command {
       .then(nextMsg => {
 
         if (!musicName.startsWith('http')){
-          console.log(musicName);
           this.youTube.search(musicName, 1, (err, result) => {
             if (err) return nextMsg.edit('Error');
 
@@ -208,6 +217,9 @@ class Music extends Command {
   }
 
   volume(msg, voiceConnData, number) {
+    if (!number)
+      return msg.channel.sendMessage(`Volume: ${voiceConnData.volume*100}%`);
+
     // Accept only numbers
     if (isNaN(number))
       return msg.channel.sendMessage('Enter valid number [0-200]');
@@ -218,6 +230,7 @@ class Music extends Command {
 
     let vol = number*0.01;
     voiceConnData.dispatcher.setVolume(vol);
+    voiceConnData.volume = vol;
     msg.channel.sendMessage(`Volume has been set to ${number}%`);
   }
 
