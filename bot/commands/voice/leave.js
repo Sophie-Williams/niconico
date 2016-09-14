@@ -24,6 +24,7 @@ class Leave extends Command {
     voiceConnData.queue.titles = [];
     voiceConnData.queue.urls = [];
     voiceConnData.nowPlaying = null;
+    voiceConnData.nowPlaying = false;
 
     voiceConn.disconnect();
     console.log('disconnected from channel');
