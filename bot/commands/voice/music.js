@@ -37,7 +37,8 @@ class Music extends Command {
         },
         nowPlaying: undefined,
         dispatcher: undefined,
-        playing: false
+        playing: false,
+        volume: 1
       });
     }
 
@@ -63,12 +64,20 @@ class Music extends Command {
 
   execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl) {
     console.log('playing');
+    let stream;
 
     // Readable stream
-    const stream = ytdl(musicUrl, {filter: 'audioonly'});
+    try {
+      stream = ytdl(musicUrl, {filter: 'audioonly'});
+    } catch(e) {
+      return console.error(e);
+    }
 
     // Plays the stream
     voiceConnData.dispatcher = voiceConn.playStream(stream);
+
+    // Set volume
+    voiceConnData.dispatcher.setVolume(voiceConnData.volume);
 
     voiceConnData.playing = true;
 
@@ -94,6 +103,7 @@ class Music extends Command {
 
         setTimeout(() => this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl), 1000);
       } else {
+        voiceConnData.nowPlaying = null;
         msg.channel.sendMessage('Queue ended');
       }
     });
@@ -109,12 +119,14 @@ class Music extends Command {
       .then(nextMsg => {
 
         if (!musicName.startsWith('http')){
-          console.log(musicName);
           this.youTube.search(musicName, 1, (err, result) => {
             if (err) return nextMsg.edit('Error');
 
-            musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
+            let videoId = result.items[0].id.videoId;
+            if (!videoId)
+              return nextMsg.edit('Music not found');
 
+            musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
             let musicTitle = result.items[0].snippet.title;
 
             if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
@@ -193,17 +205,21 @@ class Music extends Command {
   stop(msg, voiceConnData) {
     voiceConnData.playing = false;
 
-    // clear queue urls
+    // clear queue
     voiceConnData.queue.urls = [];
+    voiceConnData.queue.titles = [];
+    voiceConnData.nowPlaying = null;
 
     msg.channel.sendMessage('Music has been stopped');
 
     // Emits end event
     voiceConnData.dispatcher.end();
-
   }
 
   volume(msg, voiceConnData, number) {
+    if (!number)
+      return msg.channel.sendMessage(`Volume: ${voiceConnData.volume*100}%`);
+
     // Accept only numbers
     if (isNaN(number))
       return msg.channel.sendMessage('Enter valid number [0-200]');
@@ -214,20 +230,30 @@ class Music extends Command {
 
     let vol = number*0.01;
     voiceConnData.dispatcher.setVolume(vol);
+    voiceConnData.volume = vol;
     msg.channel.sendMessage(`Volume has been set to ${number}%`);
   }
 
   queue(msg, voiceConnData) {
     let titles = voiceConnData.queue.titles;
 
-    let msgString = `Currently Playing: **${voiceConnData.nowPlaying}**` + '\n\n**Queue:**\n';
+    let msgString = '';
+
+    if (voiceConnData.nowPlaying)
+      msgString += `Currently Playing: **${voiceConnData.nowPlaying}**\n\n`;
 
     let position = 1;
 
     msg.channel.sendMessage('Processing...')
       .then(nextMsg => {
-        for (let title of titles) {
-          msgString += `${position++}. **${title}**` + '\n';
+        msgString += '**Queue:**\n';
+
+        if (titles.length === 0) {
+          msgString += 'Empty';
+        } else {
+          for (let title of titles) {
+            msgString += `${position++}. **${title}**` + '\n';
+          }
         }
 
         nextMsg.edit(msgString);
