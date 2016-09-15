@@ -3,6 +3,7 @@
 const SetGame = require('./utils/setgame.js');
 const Help = require('./standard/help.js');
 const Ping = require('./utils/ping.js');
+const Uptime = require('./utils/uptime.js');
 const CustomEmote = require('./fun/emote.js');
 const Rps = require('./fun/rps.js');
 const Music = require('./voice/music.js');
@@ -14,6 +15,7 @@ let commands = new Map([
   ['setgame', SetGame],
   ['help', Help],
   ['ping', Ping],
+  ['uptime', Uptime],
   ['emote', CustomEmote],
   ['rps', Rps],
   ['music', Music],
