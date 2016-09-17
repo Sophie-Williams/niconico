@@ -114,21 +114,35 @@ class Music extends Command {
 
   play(msg, voiceConn, voiceConnData, musicName) {
     let musicUrl = musicName;
-    console.log(musicName);
+    console.log('Playing', musicName);
     msg.channel.sendMessage('Processing...')
       .then(nextMsg => {
 
-        if (!musicName.startsWith('http')){
-          this.youTube.search(musicName, 1, (err, result) => {
-            if (err) return nextMsg.edit('Error');
+        const promise = new Promise((resolve) => {
+          if (!musicName.startsWith('http')){
+            this.youTube.search(musicName, 1, (err, result) => {
+              if (err) return nextMsg.edit('Error');
 
-            let videoId = result.items[0].id.videoId;
-            if (!videoId)
-              return nextMsg.edit('Music not found');
+              let videoId = result.items[0].id.videoId;
+              if (!videoId)
+                return nextMsg.edit('Music not found');
 
-            musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
-            let musicTitle = result.items[0].snippet.title;
+              musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
+              resolve(result.items[0].snippet.title);
+            });
+          } else {
+            // Fall back to ytdl to get information if direct video link is given
+            ytdl.getInfo(musicUrl, (err, info) => {
+              if (err) {
+                console.error(err);
+                return nextMsg.edit('**Bad URL**');
+              }
 
+              resolve(info.title);
+            });
+          }
+
+          promise.then(musicTitle => {
             if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
               voiceConnData.nowPlaying = musicTitle;
 
@@ -141,31 +155,7 @@ class Music extends Command {
             }
           });
 
-        } else {
-
-          // Fall back to ytdl to get information if direct video link is given
-          ytdl.getInfo(musicUrl, (err, info) => {
-            if (err) {
-              console.error(err);
-              return nextMsg.edit('**Bad URL**');
-            }
-
-            let musicTitle = info.title;
-
-            if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
-              voiceConnData.nowPlaying = musicTitle;
-
-              return this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl);
-            } else {
-              voiceConnData.queue.urls.push(musicUrl);
-              voiceConnData.queue.titles.push(musicTitle);
-
-              return nextMsg.edit(`**${musicTitle}** has been added to the queue.`);
-            }
-          });
-
-        }
-
+        });
       });
   }
 
