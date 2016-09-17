@@ -141,21 +141,21 @@ class Music extends Command {
               resolve(info.title);
             });
           }
-
-          promise.then(musicTitle => {
-            if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
-              voiceConnData.nowPlaying = musicTitle;
-
-              return this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl);
-            } else {
-              voiceConnData.queue.urls.push(musicUrl);
-              voiceConnData.queue.titles.push(musicTitle);
-
-              return nextMsg.edit(`**${musicTitle}** has been added to the queue.`);
-            }
-          });
-
         });
+
+        promise.then(musicTitle => {
+          if (voiceConnData.queue.urls.length === 0 && !voiceConnData.playing) {
+            voiceConnData.nowPlaying = musicTitle;
+
+            return this.execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl);
+          } else {
+            voiceConnData.queue.urls.push(musicUrl);
+            voiceConnData.queue.titles.push(musicTitle);
+
+            return nextMsg.edit(`**${musicTitle}** has been added to the queue.`);
+          }
+        });
+
       });
   }
 
