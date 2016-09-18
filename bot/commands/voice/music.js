@@ -116,6 +116,8 @@ class Music extends Command {
   }
 
   play(msg, voiceConn, voiceConnData, musicName) {
+    if (!musicName) return msg.channel.sendMessage('Specify music name or url');
+
     let musicUrl = musicName;
     console.log('Playing', musicName);
     msg.channel.sendMessage('Processing...')
