@@ -21,6 +21,9 @@ class Music extends Command {
     let txtChannel = msg.channel;
     const GUILD_ID = txtChannel.guild.id;
 
+    if (!msg.member.voiceChannel)
+      return msg.channel.sendMessage('Be in voice channel first. Don\'t try to mess with the queue, you shit fuck');
+
     // Get voice connection for the guild where command is triggered
     let voiceConns = msg.client.voiceConnections;
     let voiceConn = voiceConns.get(GUILD_ID);
