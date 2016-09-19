@@ -17,9 +17,8 @@ class Uptime extends Command {
     uptime = Math.trunc(uptime / 60);
     let min = uptime % 60;
     uptime = Math.trunc(uptime / 60);
-    let hour = uptime % 60;
-    uptime = Math.trunc(uptime / 24);
-    let day = uptime % 24;
+    let hour = uptime % 24;
+    let day = Math.trunc(uptime / 24);
 
     let msgString = '**Uptime: ';
     if (day) msgString += day + ' days, ';
