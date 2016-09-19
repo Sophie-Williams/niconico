@@ -36,6 +36,9 @@ class Bot {
     // Catch all messages
     this.client.on('message', this.handleMessage.bind(this));
 
+    // Log for reconnection
+    this.client.on('reconnecting', () => console.log('Reconnecting..'));
+
     this.client.login(this.auth.TOKEN)
       .then(() => console.log("Logged in successfully"))
       .catch(err => console.log("Error: " + err));
