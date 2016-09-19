@@ -21,10 +21,10 @@ class Uptime extends Command {
     let day = Math.trunc(uptime / 24);
 
     let msgString = '**Uptime: ';
-    if (day) msgString += day + ' days, ';
-    if (hour) msgString += hour + ' hours, ';
-    if (min) msgString += min + ' minutes, ';
-    if (sec) msgString += sec + ' seconds';
+    if (day) msgString += day + ((day===1) ? ' day, ': ' days, ');
+    if (hour) msgString += hour + ((hour===1) ? ' hour, ':  ' hours, ');
+    if (min) msgString += min + ((min===1) ? ' minute, ':  ' minutes, ');
+    if (sec) msgString += sec + ((sec===1) ? ' second':  ' seconds');
     msgString += '**';
 
     msg.channel.sendMessage(msgString);
