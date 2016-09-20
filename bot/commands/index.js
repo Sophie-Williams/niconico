@@ -9,6 +9,7 @@ const Rps = require('./fun/rps.js');
 const Music = require('./voice/music.js');
 const Join = require('./voice/join.js');
 const Leave = require('./voice/leave.js');
+const Eval = require('./utils/eval.js');
 
 // Map to map commands
 let commands = new Map([
@@ -20,7 +21,8 @@ let commands = new Map([
   ['rps', Rps],
   ['music', Music],
   ['join', Join],
-  ['leave', Leave]
+  ['leave', Leave],
+  ['eval', Eval]
 ]);
 
 module.exports = commands;

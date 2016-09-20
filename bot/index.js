@@ -53,9 +53,7 @@ class Bot {
     // Check if the message starts with prefix
     if (!msg.content.startsWith(this.PREFIX)) return;
 
-    let cleaned = msg.content.replace(/[ \n]/, ' ');
-
-    let splitted = cleaned.split(' ');
+    let splitted = msg.content.split(' ');
     let cmd = splitted[0].slice(1);
     let suffix = splitted.slice(1).join(' ');
 
