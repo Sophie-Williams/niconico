@@ -8,12 +8,12 @@ class RemoveRole extends Command {
   constructor(bot) {
     super(bot,
           'removerole',
-          'Remove role from self-assignable roles list');
+          'Remove role from self-assignable roles list [Administrator only]');
   }
 
   process(msg, role) {
     const rolesArray = require('./roles.json').roles;
-    
+
     // This command is admin only
     if (!msg.member.hasPermission('ADMINISTRATOR')) return;
 
