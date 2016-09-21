@@ -14,7 +14,7 @@ class IAm extends Command {
     fs.access('bot/commands/roles/roles.json', err => {
       if (err)
         fs.writeFileSync('bot/commands/roles/roles.json', JSON.stringify({roles: []}, null, 2));
-        console.error(err);
+      console.log('roles.json not found.. so new file created');
     });
   }
 

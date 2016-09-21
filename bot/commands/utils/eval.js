@@ -22,8 +22,6 @@ class Eval extends Command {
 
     let msgString = '**INPUT**\n' + Util.codeWrap(exp, 'xl') + '\n**OUTPUT**\n';
 
-    console.log('exp: ' + exp); // For testing
-
     // Evaluates the expression allowing for errors
     try {
       let result = eval(exp);
