@@ -12,9 +12,10 @@ class IAm extends Command {
 
     // Create roles file if the file does not exist
     fs.access('bot/commands/roles/roles.json', err => {
-      if (err)
+      if (err) {
         fs.writeFileSync('bot/commands/roles/roles.json', JSON.stringify({roles: []}, null, 2));
-      console.log('roles.json not found.. so new file created');
+        console.log('roles.json not found.. so new file created');
+      }
     });
   }
 
