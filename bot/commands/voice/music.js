@@ -15,7 +15,7 @@ class Music extends Command {
     this.voiceConnDatas = new Map();  // Map of guild id mapping music info
     this.youTube = new YouTube();
     this.youTube.setKey(YOUTUBE_API_KEY);
-    this.youTube.addParam('type', 'video');
+    // this.youTube.addParam('type', 'video');
   }
 
   process(msg, suffix) {
@@ -68,14 +68,15 @@ class Music extends Command {
 
   execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl) {
     console.log('playing');
-    let stream;
 
     // Readable stream
-    try {
-      stream = ytdl(musicUrl, {filter: 'audioonly'});
-    } catch(e) {
-      return console.error(e);
-    }
+    let stream = ytdl(musicUrl, {filter: 'audioonly'});
+
+    // Catch error thrown by stream
+    stream.on('error', err => {
+      console.error(err);
+      return nextMsg.edit('Error');
+    });
 
     // Plays the stream
     voiceConnData.dispatcher = voiceConn.playStream(stream);
