@@ -15,6 +15,7 @@ class Music extends Command {
     this.voiceConnDatas = new Map();  // Map of guild id mapping music info
     this.youTube = new YouTube();
     this.youTube.setKey(YOUTUBE_API_KEY);
+    this.youTube.addParam('type', 'video');
   }
 
   process(msg, suffix) {
