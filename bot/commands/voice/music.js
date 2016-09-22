@@ -119,7 +119,7 @@ class Music extends Command {
     if (!musicName) return msg.channel.sendMessage('Specify music name or url');
 
     let musicUrl = musicName;
-    console.log('Playing', musicName);
+
     msg.channel.sendMessage('Processing...')
       .then(nextMsg => {
 
@@ -128,8 +128,7 @@ class Music extends Command {
             this.youTube.search(musicName, 1, (err, result) => {
               if (err) return nextMsg.edit('Error');
 
-              let videoId = result.items[0].id.videoId;
-              if (!videoId)
+              if (result.items.length === 0)
                 return nextMsg.edit('Music not found');
 
               musicUrl = 'https://www.youtube.com/watch?v=' + result.items[0].id.videoId;
