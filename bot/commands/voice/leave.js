@@ -21,11 +21,12 @@ class Leave extends Command {
     // Get voice Connection data to clear queue
     let musicCommand = this.bot.commandsCache.find(cmd => cmd.name == 'music').command;
     let voiceConnData = musicCommand.voiceConnDatas.get(GUILD_ID);
-    voiceConnData.queue.titles = [];
-    voiceConnData.queue.urls = [];
-    voiceConnData.nowPlaying = null;
-    voiceConnData.nowPlaying = false;
-
+    if (voiceConnData) {
+      voiceConnData.queue.titles = [];
+      voiceConnData.queue.urls = [];
+      voiceConnData.nowPlaying = null;
+      voiceConnData.nowPlaying = false;
+    }
     voiceConn.disconnect();
     console.log('disconnected from channel');
   }
