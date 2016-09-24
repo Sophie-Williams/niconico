@@ -20,8 +20,8 @@ class Join extends Command {
       return msg.channel.sendMessage('I do not have permission to connect');
 
     vChannel.join()
-    .then(() => console.log('Connected!'))
-    .catch(console.error);
+      .then(() => console.log(`Connected to ${vChannel.name}`))
+      .catch(console.error);
   }
 
 }
