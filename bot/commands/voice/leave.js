@@ -18,6 +18,8 @@ class Leave extends Command {
     let voiceConns = msg.client.voiceConnections;
     let voiceConn = voiceConns.get(GUILD_ID);
 
+    if (!voiceConn) return msg.reply('I am not in any voice channel');
+
     // Get voice Connection data to clear queue
     let musicCommand = this.bot.commandsCache.find(cmd => cmd.name == 'music').command;
     let voiceConnData = musicCommand.voiceConnDatas.get(GUILD_ID);
