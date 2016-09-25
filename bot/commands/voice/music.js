@@ -67,7 +67,7 @@ class Music extends Command {
   }
 
   execute(msg, nextMsg, voiceConn, voiceConnData, musicUrl) {
-    console.log('playing');
+    console.log('playing' + musicUrl);
 
     // Readable stream
     let stream = ytdl(musicUrl, {filter: 'audioonly'});
@@ -75,7 +75,13 @@ class Music extends Command {
     // Catch error thrown by stream
     stream.on('error', err => {
       console.error(err);
-      return nextMsg.edit('Error');
+      voiceConnData.playing = false;
+      voiceConnData.dispatcher.end();
+      if (nextMsg){
+        return nextMsg.edit('This video may not be supported');
+      } else {
+        return msg.channel.sendMessage('This video may not be supported');
+      }
     });
 
     // Plays the stream
