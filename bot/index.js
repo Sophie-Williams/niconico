@@ -1,6 +1,7 @@
 "use strict";
 
-const Client = require('discord.js').Client;
+const Discord = require('discord.js');
+const Client = Discord.Client;
 const config = require('configs/config');
 const commands = require('./commands');
 
@@ -50,6 +51,9 @@ class Bot {
    * @param msg Message to be handled
    */
   handleMessage(msg) {
+    // Ignore DMs
+    if (msg.channel instanceof Discord.DMChannel) return;
+
     // Check if the message starts with prefix
     if (!msg.content.startsWith(this.PREFIX)) return;
 
