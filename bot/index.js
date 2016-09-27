@@ -40,6 +40,8 @@ class Bot {
     // Log for reconnection
     this.client.on('reconnecting', () => console.log('Reconnecting..'));
 
+    this.client.on('disconnect', () => console.log('Disconencted from Discord'));
+
     this.client.login(this.auth.TOKEN)
       .then(() => console.log("Logged in successfully"))
       .catch(err => console.log("Error: " + err));
