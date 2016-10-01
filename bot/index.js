@@ -82,6 +82,11 @@ class Bot {
     }
   }
 
+  reload() {
+    this.commandsCache = [];
+    this.load();
+  }
+
 }
 
 module.exports = Bot;

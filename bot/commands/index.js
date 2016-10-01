@@ -15,6 +15,7 @@ const ListAllRoles = require('./roles/listallroles.js');
 const AddRole = require('./roles/addrole.js');
 const IAmNot = require('./roles/iamnot.js');
 const RemoveRole = require('./roles/removerole.js');
+const Reload = require('./utils/reload.js');
 
 // Map to map commands
 let commands = new Map([
@@ -32,7 +33,8 @@ let commands = new Map([
   ['listallroles', ListAllRoles],
   ['addrole', AddRole],
   ['iamnot', IAmNot],
-  ['removerole', RemoveRole]
+  ['removerole', RemoveRole],
+  ['reload', Reload]
 ]);
 
 module.exports = commands;
