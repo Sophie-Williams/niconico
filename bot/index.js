@@ -45,6 +45,47 @@ class Bot {
     this.client.login(this.auth.TOKEN)
       .then(() => console.log("Logged in successfully"))
       .catch(err => console.log("Error: " + err));
+
+    this.client.on('guildMemberAdd', (guild, member) => {
+      this.logAddOrRemoveEvent(guild, member, 'add');
+
+      let welcomeChannel = guild.channels.find('name', 'welcome');
+      if (welcomeChannel)
+        guild.defaultChannel.sendMessage(`${member}, Welcome to our server. Check out ${welcomeChannel} and enjoy your stay!`);
+      else
+        guild.defaultChannel.sendMessage(`${member}, Welcome to our server. Enjoy your stay!`);
+
+    });
+
+    this.client.on('guildMemberRemove', (guild, member) => {
+      this.logAddOrRemoveEvent(guild, member, 'remove');
+      guild.defaultChannel.sendMessage(`${member}, Bye Bye! Farewell. :cry:`);
+    });
+  }
+
+  logAddOrRemoveEvent(guild, member, eventType) {
+    if (!guild.available) return console.log('Guild is not available');
+
+    let logChannel = guild.channels.find('name', 'event-log');
+    let clientMember = guild.member(this.client.user);
+    let defaultChannel = guild.defaultChannel;
+
+    if (!logChannel) return;
+
+    if (!logChannel.permissionsFor(clientMember).hasPermission('SEND_MESSAGES')) {
+      if (defaultChannel.permissionsFor(clientMember).hasPermission('SEND_MESSAGES')) {
+        return defaultChannel.sendMessage(`I do not have permission to send message in ${logChannel}`);
+      }
+      return;
+    }
+
+    if (eventType === 'add') {
+      logChannel.sendMessage(`**${member.user.username}** joined the server.`);
+    } else if (eventType === 'remove') {
+      logChannel.sendMessage(`**${member.user.username}** left the server.`);
+    } else {
+      throw new TypeError('No such eventType');
+    }
   }
 
   /**
