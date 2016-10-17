@@ -59,7 +59,7 @@ class Bot {
 
     this.client.on('guildMemberRemove', (guild, member) => {
       this.logAddOrRemoveEvent(guild, member, 'remove');
-      guild.defaultChannel.sendMessage(`${member}, Bye Bye! Farewell. :cry:`);
+      guild.defaultChannel.sendMessage(`${member}, Bye! RIP! :tux_ninja:`);
     });
   }
 
