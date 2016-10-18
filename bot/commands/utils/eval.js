@@ -10,10 +10,11 @@ class Eval extends Command {
     super(bot,
           'eval <inline code or codeblock>',
           'Evaluates javascript expressions or statements (Owner only)');
+    this.allowedUsers = [OWNER_ID, '188382456313806848'];
   }
 
   process(msg, exp) {
-    if (msg.member.id != OWNER_ID) return;
+    if (!this.allowedUsers.includes(msg.member.id)) return;
 
     // Check for code blocks
     if (exp.startsWith('```js\n')) {
