@@ -46,7 +46,8 @@ class Bot {
       .then(() => console.log("Logged in successfully"))
       .catch(err => console.log("Error: " + err));
 
-    this.client.on('guildMemberAdd', (guild, member) => {
+    this.client.on('guildMemberAdd', member => {
+      let guild = member.guild;
       this.logAddOrRemoveEvent(guild, member, 'add');
 
       let welcomeChannel = guild.channels.find('name', 'welcome');
@@ -57,7 +58,8 @@ class Bot {
 
     });
 
-    this.client.on('guildMemberRemove', (guild, member) => {
+    this.client.on('guildMemberRemove', member => {
+      let guild = member.guild;
       this.logAddOrRemoveEvent(guild, member, 'remove');
 
       let tuxEmoji = guild.emojis.find('name', 'tux_ninja');
