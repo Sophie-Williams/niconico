@@ -28,8 +28,8 @@ class SetGame extends Command {
     let txtChannel = msg.channel;
 
     if (!suffix) return;
-    msg.client.user.setStatus('online', suffix)
-      .then( () => txtChannel.sendMessage(`Game status successfully set to **${suffix}**`));
+    msg.client.user.setGame(suffix)
+      .then(() => txtChannel.sendMessage(`Game status successfully set to **${suffix}**`));
   }
 
 }
