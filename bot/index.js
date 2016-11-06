@@ -104,6 +104,9 @@ class Bot {
   handleMessage(msg) {
     // Ignore DMs
     if (msg.channel instanceof Discord.DMChannel) return;
+    
+    if (msg.content.match(/\bkek\b/)) 
+      msg.channel.sendMessage('https://cdn.discordapp.com/emojis/244821164831014912.png');
 
     // Check if the message starts with prefix
     if (!msg.content.startsWith(this.PREFIX)) return;
