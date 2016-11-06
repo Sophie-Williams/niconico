@@ -6,7 +6,7 @@ const Util = require('lib/util.js');
 /**
  * Emote command to send custom emotes
  */
-class CustomEmote extends Command{
+class CustomEmote extends Command {
 
   /**
    * Constructor
