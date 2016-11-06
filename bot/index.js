@@ -102,11 +102,17 @@ class Bot {
    * @param msg Message to be handled
    */
   handleMessage(msg) {
+    // Ignore its own message
+    if (msg.author.id === this.client.user.id) return;
+    
     // Ignore DMs
     if (msg.channel instanceof Discord.DMChannel) return;
     
     if (msg.content.match(/\bkek\b/)) 
       msg.channel.sendMessage('https://cdn.discordapp.com/emojis/244821164831014912.png');
+    
+    if (msg.content.match(/\btheory\b/))
+      msg.channel.sendMessage('But that\'s just a theory.\nA game theory.\nThanks for watching.');
 
     // Check if the message starts with prefix
     if (!msg.content.startsWith(this.PREFIX)) return;
