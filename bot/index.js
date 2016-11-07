@@ -123,7 +123,6 @@ class Bot {
     // Respond to messages containing words from respond list
     for (const prop of respondListKeys) {
       const regExp = new RegExp(prop, 'g');
-      console.log(regExp);
       if (msg.content.match(regExp)) {
         msg.channel.sendMessage(respondList[prop]);
       }
