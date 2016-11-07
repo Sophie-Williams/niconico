@@ -4,6 +4,16 @@ const Discord = require('discord.js');
 const Client = Discord.Client;
 const config = require('configs/config');
 const commands = require('./commands');
+const fs = require('fs');
+
+// Create respondList file if the file does not exist
+try {
+  fs.accessSync('bot/commands/fun/respondList.json');
+} catch (err) {
+  fs.writeFileSync('bot/commands/fun/respondList.json', JSON.stringify({respondList: {}}, null, 2));
+  console.log('respondList.json not found.. so new file created');
+}
+
 let respondList = require('./commands/fun/respondList.json').respondList;
 let respondListKeys = Object.keys(respondList);
 

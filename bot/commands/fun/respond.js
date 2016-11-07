@@ -11,13 +11,6 @@ class Respond extends Command {
       `respond "[word/phrase]" "[message]"`,
       `Add a word/phrase bot will respond to with a given message`);
       
-    // Create roles file if the file does not exist
-    fs.access(RESPOND_LIST_PATH, err => {
-      if (err) {
-        fs.writeFileSync('bot/commands/roles/roles.json', JSON.stringify({respondList: {}}, null, 2));
-        console.log('respond.json not found.. so new file has been created');
-      }
-    });
     this.respondList = require('./respondList.json').respondList;
   }
   
