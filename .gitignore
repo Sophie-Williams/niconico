@@ -2,3 +2,4 @@ npm-debug.log
 configs/auth.json
 node_modules/*
 bot/commands/roles/roles.json
+bot/commands/fun/respondList.json

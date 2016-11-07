@@ -6,6 +6,9 @@ const Ping = require('./utils/ping.js');
 const Uptime = require('./utils/uptime.js');
 const CustomEmote = require('./fun/emote.js');
 const Rps = require('./fun/rps.js');
+const Respond = require('./fun/respond.js');
+const ListAllResponds = require('./fun/listallresponds.js');
+const RemoveRespond = require('./fun/removerespond.js');
 const Music = require('./voice/music.js');
 const Join = require('./voice/join.js');
 const Leave = require('./voice/leave.js');
@@ -36,7 +39,10 @@ let commands = new Map([
   ['iamnot', IAmNot],
   ['removerole', RemoveRole],
   ['reload', Reload],
-  ['sysstats', SysStats]
+  ['sysstats', SysStats],
+  ['respond', Respond],
+  ['listallresponds', ListAllResponds],
+  ['removerespond', RemoveRespond]
 ]);
 
 module.exports = commands;

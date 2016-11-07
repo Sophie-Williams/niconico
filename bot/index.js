@@ -4,6 +4,8 @@ const Discord = require('discord.js');
 const Client = Discord.Client;
 const config = require('configs/config');
 const commands = require('./commands');
+let respondList = require('./commands/fun/respondList.json').respondList;
+let respondListKeys = Object.keys(respondList);
 
 class Bot {
 
@@ -108,11 +110,14 @@ class Bot {
     // Ignore DMs
     if (msg.channel instanceof Discord.DMChannel) return;
     
-    if (msg.content.match(/\bkek\b/)) 
-      msg.channel.sendMessage('https://cdn.discordapp.com/emojis/244821164831014912.png');
-    
-    if (msg.content.match(/\btheory\b/))
-      msg.channel.sendMessage('But that\'s just a theory.\nA game theory.\nThanks for watching.');
+    // Respond to messages containing words from respond list
+    for (const prop of respondListKeys) {
+      const regExp = new RegExp(prop, 'g');
+      console.log(regExp);
+      if (msg.content.match(regExp)) {
+        msg.channel.sendMessage(respondList[prop]);
+      }
+    }
 
     // Check if the message starts with prefix
     if (!msg.content.startsWith(this.PREFIX)) return;
@@ -143,6 +148,8 @@ class Bot {
   reload() {
     this.commandsCache = [];
     this.load();
+    respondList = require('./commands/fun/respondList.json').respondList;
+    respondListKeys = Object.keys(respondList);
   }
 
 }
