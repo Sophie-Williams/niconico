@@ -8,11 +8,12 @@ class Reload extends Command {
   constructor(bot) {
     super(bot,
           'reload',
-          'Reload all commands [Owner only]');
+          'Reload all commands [Owners only]');
+    this.allowedUsers = [OWNER_ID, '188382456313806848'];
   }
 
   process(msg) {
-    if (msg.member.id != OWNER_ID) return;
+    if (!this.allowedUsers.includes(msg.member.id)) return;
 
     msg.channel.sendMessage('Processing...')
       .then( nextMessage =>  {
